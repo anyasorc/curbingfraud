@@ -91,13 +91,19 @@ df_merged = pd.merge(df, df_salary, on=["salary"])
 df_merged
 
 
-# In[12]:
+# In[15]:
 
 
 # Test your model
 # 1 ==> The amount is within the expected salary range
 # -1 ==> The amount deviates from the expected salary range
 model.predict([[10000]])
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
