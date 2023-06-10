@@ -55,7 +55,7 @@ df_salary
 
 
 # Instantiate the model and fit the data to it
-model=IsolationForest(n_estimators=1000, max_samples='auto', contamination=float(0.04),max_features=1.0)
+model=IsolationForest(n_estimators=1000, max_samples='auto', contamination=float(0.04),max_features=1.0, random_state=0)
 model.fit(df_salary[['salary']])
 
 
@@ -97,7 +97,7 @@ df_merged
 # Test your model
 # 1 ==> The amount is within the expected salary range
 # -1 ==> The amount deviates from the expected salary range
-model.predict([[500]])
+model.predict([[10000]])
 
 
 # In[ ]:
