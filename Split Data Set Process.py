@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[14]:
 
 
 # import the required library
@@ -10,7 +10,7 @@ import pandas as pd
 from datetime import timedelta
 
 
-# In[2]:
+# In[15]:
 
 
 # Load the bank transaction dataset
@@ -19,58 +19,79 @@ df = pd.read_csv('D:/rawdata/tbl_bank_transactions.csv',dtype={'account_number':
 df.head(3)
 
 
-# In[3]:
+# In[16]:
 
 
 # confirm how many records exist and the number of rows and columns
 df.shape
 
 
-# In[4]:
+# In[17]:
 
 
 # we will be working with account_number, transaction_date_time, and transaction_amount
-df = df[['account_number','transaction_date_time', 'transaction_amount']]
+df = df[['account_number','transaction_date_time', 'transaction_amount', 'transaction_type']]
 #peek into the data
 df.head(5)
 
 
-# In[5]:
+# In[18]:
+
+
+#lets convert the transaction_date_time from object to a proper date time
+df['transaction_date_time']=pd.to_datetime(df['transaction_date_time'])
+df
+
+
+# In[19]:
 
 
 # confirm the data types
 df.dtypes
 
 
-# In[6]:
+# In[20]:
+
+
+# Let us define a pattern to use for our fraud detection. 
+# create a new column called hour and extract hourly value from the transaction_date_time
+df['hour']=df.transaction_date_time.dt.hour
+# create a new column called weekday and extract the weekday value from transaction_date_time
+df['weekday']=pd.Categorical(df.transaction_date_time.dt.strftime('%A'), categories=['Monday','Tuesday','Wednesday',
+                                                                                     'Thursday','Friday','Saturday', 
+                                                                                     'Sunday'], ordered=True)
+df
+
+
+# In[21]:
 
 
 # Convert the InputDate into date format without time.
-df['transaction_date_time'] = pd.to_datetime(df['transaction_date_time']).dt.date
-df['transaction_date_time'] = pd.to_datetime(df['transaction_date_time']) 
+#df['transaction_date_time'] = pd.to_datetime(df['transaction_date_time']).dt.date
+#df['transaction_date_time'] = pd.to_datetime(df['transaction_date_time']) 
 
 
-# In[7]:
+# In[22]:
 
 
 df.dtypes
 
 
-# In[8]:
+# In[23]:
 
 
 # check for NAN in the amount 
 print(df.isna().sum())
 
 
-# In[9]:
+# In[24]:
 
 
 #peek into the data to confirm transaction_date_time is now without time.
 df.head(5)
 
 
-# In[10]:
+# In[25]:
 
 
 # function to generate each customers transaction pattern by account
@@ -84,17 +105,17 @@ def gen_txn_pattern_per_acct(df):
     writedata = "D:\\curbingfraud\\datasets\\"
     # set the txn pattern number of days for pattern generation per account
     # as approved by management
-    num_of_days_txn_pattern = "30"
+    #num_of_days_txn_pattern = "30"
     # form the dataframe name variable to be used
-    txndays = "sum_"+num_of_days_txn_pattern+"days" # this will become sum_30days
+    # txndays = "sum_"+num_of_days_txn_pattern+"days" # this will become sum_30days
     cnt = 0
     datafolder = ''
     total = 0
     for i in df_unqiue_accts:
         total += 1
         cnt += 1
-        # pick the account to start generating txn pattern
-        df_per_acct = df.query('account_number == @i')
+        # pick the account to start generating txn pattern where transaction_type = withdrawal
+        df_per_acct = df.query('account_number == @i & transaction_type =="withdrawal"')
         # sort the value by input date and set the index to input date
         # the set_index() method allows one or more column values become the row index.
         # Note: I used the \ to move the rest of the code to a new line.
@@ -102,9 +123,10 @@ def gen_txn_pattern_per_acct(df):
         
         # get the sum of the previous n days transaction amount based on customers account
         # Note: I used the \ to move the rest of the code to a new line.
-        df_txn_pattern[txndays] = df_txn_pattern.groupby('account_number')['transaction_amount'].        transform(lambda s: s.rolling(timedelta(days=int(num_of_days_txn_pattern))).sum())
+        # df_txn_pattern[txndays] = df_txn_pattern.groupby('account_number')['transaction_amount'].\
+        # transform(lambda s: s.rolling(timedelta(days=int(num_of_days_txn_pattern))).sum())
         # assign the value into new dataframe named final_df
-        final_df = df_txn_pattern[txndays]
+        final_df = df_txn_pattern
         # check if the cnt is 3 then reset cnt 1
         # cnt ==3 means it has gotten to the last folder
         # and there is a need to start writing into folder 1 and proceed to the next folder
@@ -125,7 +147,7 @@ def gen_txn_pattern_per_acct(df):
 #*******************************************************
 
 
-# In[11]:
+# In[26]:
 
 
 # generate txn pattern file per account
