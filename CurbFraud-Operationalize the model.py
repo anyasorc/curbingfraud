@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[65]:
+# In[87]:
 
 
 import pandas as pd
@@ -14,7 +14,7 @@ from datetime import datetime
 warnings.filterwarnings('ignore')
 
 
-# In[66]:
+# In[88]:
 
 
 def getmodelpath(acct):
@@ -54,7 +54,7 @@ def getmodelpath(acct):
     if val > 0:
         #get the path to the model and assign to the variable modelpath
         modelpath = "D:\\curbingfraud\\CustTxnPatternModels\\"
-        name_of_model = modelpath + nuban + "_txn_Pattern.pkl"
+        name_of_model = modelpath + acct + "_txn_Pattern.pkl"
         print(f"The name of the model gotten is {name_of_model} for account {acct}")
     else:
         # get the generic model path since the customer account does not have any model yet
@@ -65,26 +65,26 @@ def getmodelpath(acct):
     return name_of_model, val
 
 
-# In[67]:
+# In[93]:
 
 
 def processoutput(output,amt, acct):
     remark =""
     #check if the predicted outcome is -1
     if output == -1:
-        remark = "The model predicts a TOTAL DEVIATION [Anomaly]  from customer's txn pattern for Account " + acct + " with txn amount " + str(amt)
+        remark = "The model predicts a TOTAL DEVIATION [Anomaly]  from customer's txn pattern for Account "         + acct + " with txn amount " + str(amt)
         rsp = {'amt': amt, 'acct': acct,
                   'predictedScore': str(output), 'remark': remark}
         return jsonify(predictedvalue = rsp)
     else:
         #prepare the json response
-        remark = "The model predicts that customer txn pattern is OK for Account " + acct + " with txn amount " + str(amt)
+        remark = "The model predicts that customer txn pattern is OK for Account " + acct +         " with txn amount " + str(amt)
         rsp = {'amt': amt, 'acct': acct,
                'predictedScore': str(output), 'remark': remark}
         return jsonify(predictedvalue = rsp)
 
 
-# In[68]:
+# In[90]:
 
 
 app = Flask(__name__)
@@ -93,8 +93,8 @@ def predict():
     # read the data into its respective varibales
     data = request.get_json(force=True)
     acct = data['acct']
-    amt = data['amt']
-    # check to ensure the nuban parameter is not empty
+    amt = float(data['amt'])
+    # check to ensure the account parameter is not empty
     if acct == '':
         remark = 'Kindly ensure that the account field is not empty'
         rsp = {'amt': amt, 'acct': acct,
@@ -121,8 +121,8 @@ def predict():
         model = pickle.load(infile, encoding='bytes') #read the pickel file
         infile.close() #close the pickel file
     except:
-        remark = "Unable to find file path for customer's " + nuban + " transaction pattern"
-        return jsonify(predictedScore='', nuban=nuban, amt=amt, remark=remark)
+        remark = "Unable to find file path for customer's " + acct + " transaction pattern"
+        return jsonify(predictedScore='', acct=acct, amt=amt, remark=remark)
     
     #pass the amount and hour
     currentDateAndTime = datetime.now()
@@ -130,41 +130,17 @@ def predict():
     print(f"The transaction hour is ==> {txn_hour}")
     prediction = model.predict([[np.array(amt), np.array(txn_hour)]])
     
-        
-    
     # Take the first value of prediction
     output = prediction[0]
     print(f"The output gotten for account: {acct} with mdoel: {name_of_model} is {output}")
     return processoutput(output, amt, acct)
 
 
-# In[47]:
+# In[91]:
 
 
 if __name__ == '__main__':
     app.run(port=5009)
-
-
-# In[ ]:
-
-
-
-
-
-# In[60]:
-
-
-def get_name_and_age():
-    name = "Alice"
-    age = 30
-    return name, age  # returning a tuple (name, age) without parentheses
-
-
-# In[63]:
-
-
-name, age = get_name_and_age()
-print(age)
 
 
 # In[ ]:
