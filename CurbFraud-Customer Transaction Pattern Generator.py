@@ -17,17 +17,12 @@ import pickle
 warnings.filterwarnings('ignore')
 
 
-# In[2]:
+# In[19]:
 
 
 def writetopicke(nuban, data, full_path):
     modelpath = "D:\\curbingfraud\\CustTxnPatternModels\\"
-    # the number of transaction days
-    # nun_days_pattern = "30"
-    # form the dataframe name variable to be used
-    # txndays = "sum_"+nun_days_pattern+"days"
     model=IsolationForest(n_estimators=1000, max_samples='auto', contamination=float(0.04),max_features=1.0, random_state=0)
-    #model = model.fit(data[[txndays]])
     model.fit(df[['transaction_amount','hour']])
     name_of_model = modelpath + nuban + "_txn_Pattern.pkl"
     #open a file, where you ant to store the data
@@ -39,7 +34,6 @@ def writetopicke(nuban, data, full_path):
     get_anomaly(data)
     plot_anomaly_graph(data)
     filename.close()
-    #removefile(full_path)
 
 
 # In[3]:
@@ -102,7 +96,7 @@ for i in df_unqiue_dir:
             writetopicke(filename, df, full_path)
 
 
-# In[15]:
+# In[17]:
 
 
 # test one of the model
@@ -115,7 +109,7 @@ infile = open(name_of_model,'rb') #open the pickel file
 model = pickle.load(infile, encoding='bytes') #read the pickel file
 infile.close() #close the pickel file
 
-prediction = model.predict([[500,5]])
+prediction = model.predict([[200,4]])
 prediction
 
 #lets predict with the model to comfirm same
