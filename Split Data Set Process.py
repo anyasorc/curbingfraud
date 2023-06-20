@@ -63,14 +63,6 @@ df['weekday']=pd.Categorical(df.transaction_date_time.dt.strftime('%A'), categor
 df
 
 
-# In[21]:
-
-
-# Convert the InputDate into date format without time.
-#df['transaction_date_time'] = pd.to_datetime(df['transaction_date_time']).dt.date
-#df['transaction_date_time'] = pd.to_datetime(df['transaction_date_time']) 
-
-
 # In[22]:
 
 
@@ -82,13 +74,6 @@ df.dtypes
 
 # check for NAN in the amount 
 print(df.isna().sum())
-
-
-# In[24]:
-
-
-#peek into the data to confirm transaction_date_time is now without time.
-df.head(5)
 
 
 # In[25]:
